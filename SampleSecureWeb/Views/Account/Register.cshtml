@@ -1,0 +1,133 @@
+﻿@model SampleSecureWeb.ViewModels.RegistrationViewModel
+
+<div class="row">
+    <div class="col-lg-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                Registration
+            </div>
+            <div class="card-body">
+                @if (ViewBag.Massage != null)
+                {
+                    <div class="alert alert-success">
+                        @ViewBag.Massage
+                    </div>
+                }
+                <form asp-action="Register">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="form-group">
+                        <input asp-for="Username" class="form-control form-control-user" placeholder="Username">
+                        <span asp-validation-for="Username" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <div class="input-group">
+                            <input asp-for="Password" class="form-control form-control-user" placeholder="Password"
+                                id="password" type="password">
+                        </div>
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                        <div id="password-strength" class="mt-2"></div>
+                        <div class="progress mt-2">
+                            <div id="passwordStrengthBar" class="progress-bar" role="progressbar" style="width: 0%;">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <input asp-for="ConfirmPassword" class="form-control form-control-user"
+                            placeholder="Confirm password" id="confirmPasswordInput" type="password">
+                        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                        <div id="confirm-password-strength" class="mt-2"></div>
+                        <div class="progress mt-2">
+                            <div id="confirmPasswordStrengthBar" class="progress-bar" role="progressbar"
+                                style="width: 0%;"></div>
+                        </div>
+                    </div>
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" id="showPassword" onclick="togglePasswordVisibility()"> Show Password
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        <input type="submit" class="btn btn-primary btn-user btn-block" value="Register">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        // Fungsi untuk indikator kekuatan password
+        function evaluatePasswordStrength(password, strengthBar, strengthTextId) {
+            let strength = 0;
+
+            if (password.match(/[a-z]+/)) strength += 1;
+            if (password.match(/[A-Z]+/)) strength += 1;
+            if (password.match(/[0-9]+/)) strength += 1;
+            if (password.match(/[$#&!]+/)) strength += 1;
+            if (password.length >= 12) strength += 1;
+
+            switch (strength) {
+                case 0:
+                    strengthBar.style.width = '0%';
+                    strengthBar.className = 'progress-bar';
+                    document.getElementById(strengthTextId).innerText = '';
+                    break;
+                case 1:
+                    strengthBar.style.width = '20%';
+                    strengthBar.className = 'progress-bar bg-danger';
+                    document.getElementById(strengthTextId).innerText = 'Very Weak';
+                    break;
+                case 2:
+                    strengthBar.style.width = '40%';
+                    strengthBar.className = 'progress-bar bg-warning';
+                    document.getElementById(strengthTextId).innerText = 'Weak';
+                    break;
+                case 3:
+                    strengthBar.style.width = '60%';
+                    strengthBar.className = 'progress-bar bg-info';
+                    document.getElementById(strengthTextId).innerText = 'Medium';
+                    break;
+                case 4:
+                    strengthBar.style.width = '80%';
+                    strengthBar.className = 'progress-bar bg-primary';
+                    document.getElementById(strengthTextId).innerText = 'Strong';
+                    break;
+                case 5:
+                    strengthBar.style.width = '100%';
+                    strengthBar.className = 'progress-bar bg-success';
+                    document.getElementById(strengthTextId).innerText = 'Very Strong';
+                    break;
+            }
+        }
+
+        document.getElementById("password").addEventListener("input", function () {
+            evaluatePasswordStrength(this.value, document.getElementById("passwordStrengthBar"), "password-strength");
+        });
+
+        document.getElementById("confirmPasswordInput").addEventListener("input", function () {
+            evaluatePasswordStrength(this.value, document.getElementById("confirmPasswordStrengthBar"), "confirm-password-strength");
+        });
+
+        function togglePasswordVisibility() {
+            const passwordField = document.getElementById('password');
+            const confirmPasswordField = document.getElementById('confirmPasswordInput');
+            const showPassword = document.getElementById('showPassword');
+
+            const type = showPassword.checked ? 'text' : 'password';
+            passwordField.type = type;
+            confirmPasswordField.type = type;
+        }
+    </script>
+
+    <style>
+        .progress {
+            height: 20px;
+        }
+    </style>
+}
